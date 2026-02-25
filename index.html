@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinkHub · Repositori privat d'enllaços</title>
+    <title>Repositori privat d'enllaços</title>
     <!-- Poppins de Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,20 +30,9 @@
             margin: 0 auto;
         }
 
-        /* capçalera elegant */
+        /* capçalera - només logo */
         .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
             margin-bottom: 2.5rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
         }
 
         .logo-icon {
@@ -57,34 +46,6 @@
             color: white;
             font-size: 1.8rem;
             box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4);
-        }
-
-        h1 {
-            font-weight: 600;
-            font-size: 2rem;
-            letter-spacing: -0.02em;
-            background: linear-gradient(to right, #1e293b, #3b82f6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .badge-privat {
-            background-color: #e2e8f0;
-            padding: 0.25rem 1rem;
-            border-radius: 30px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: #475569;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-        }
-
-        .badge-privat i {
-            color: #3b82f6;
-            font-size: 0.75rem;
         }
 
         /* cerca i filtre ràpids */
@@ -123,7 +84,7 @@
             font-weight: 300;
         }
 
-        /* categoría destacada: DOCUMENTS */
+        /* categories */
         .category-section {
             margin-bottom: 3rem;
         }
@@ -159,7 +120,7 @@
             font-size: 1rem;
         }
 
-        /* targetes d'enllaços */
+        /* targetes d'enllaços - ara tot el requadre és clicable */
         .links-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -179,6 +140,9 @@
             align-items: center;
             gap: 1rem;
             border: 1px solid rgba(148, 163, 184, 0.15);
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
         }
 
         .link-card:hover {
@@ -198,10 +162,12 @@
             font-size: 1.5rem;
             color: #3b82f6;
             box-shadow: inset 0 2px 5px rgba(255,255,255,0.8), 0 5px 10px rgba(0, 20, 40, 0.05);
+            pointer-events: none;
         }
 
         .card-content {
             flex: 1;
+            pointer-events: none;
         }
 
         .card-title {
@@ -227,21 +193,13 @@
             display: flex;
             align-items: center;
             gap: 0.3rem;
-            transition: color 0.1s;
             word-break: break-all;
+            pointer-events: none;
         }
 
         .card-link i {
             font-size: 0.7rem;
             color: #94a3b8;
-        }
-
-        .card-link:hover {
-            color: #3b82f6;
-        }
-
-        .card-link:hover i {
-            color: #3b82f6;
         }
 
         .etiqueta-pdf {
@@ -256,7 +214,7 @@
             text-transform: uppercase;
         }
 
-        /* altres categories (exemple) */
+        /* altres categories */
         .altres-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -335,29 +293,9 @@
             transform: scale(1.07) rotate(90deg);
         }
 
-        /* missatge privat */
-        .footnote {
-            margin-top: 4rem;
-            text-align: center;
-            color: #64748b;
-            font-size: 0.9rem;
-            border-top: 1px solid #dce5ec;
-            padding-top: 2rem;
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .footnote i {
-            color: #3b82f6;
-            margin-right: 0.3rem;
-        }
-
         /* responsivitat */
         @media (max-width: 640px) {
             body { padding: 1.2rem; }
-            h1 { font-size: 1.6rem; }
             .header { flex-direction: column; align-items: start; }
             .fab { width: 50px; height: 50px; font-size: 1.5rem; right: 1.2rem; bottom: 1.2rem; }
         }
@@ -365,25 +303,18 @@
 </head>
 <body>
     <div class="container">
-        <!-- Capçalera privada -->
+        <!-- Només el logo (sense títol) -->
         <div class="header">
-            <div class="logo-area">
-                <div class="logo-icon"><i class="fas fa-link"></i></div>
-                <h1>LinkHub</h1>
-                <div class="badge-privat"><i class="fas fa-lock"></i> privat · només tu</div>
-            </div>
-            <div>
-                <span style="background: #e6f0ff; padding: 0.4rem 1.2rem; border-radius: 40px; font-size:0.9rem; font-weight:500;"><i class="fas fa-bookmark" style="color:#3b82f6;"></i> 23 enllaços actius</span>
-            </div>
+            <div class="logo-icon"><i class="fas fa-link"></i></div>
         </div>
 
-        <!-- Barra de cerca (estilitzada) -->
+        <!-- Barra de cerca -->
         <div class="search-bar">
             <i class="fas fa-search"></i>
-            <input type="text" placeholder="Cerca dins els teus enllaços... (p. ex. PDF, documents)">
+            <input type="text" id="searchInput" placeholder="Cerca dins els teus enllaços... (p. ex. PDF, documents)">
         </div>
 
-        <!-- SECCIÓ PRINCIPAL: DOCUMENTS (com demanes) -->
+        <!-- SECCIÓ PRINCIPAL: DOCUMENTS -->
         <div class="category-section">
             <div class="category-title">
                 <i class="fas fa-file-pdf"></i>
@@ -391,89 +322,85 @@
             </div>
             <p class="category-desc"><i class="fas fa-pen" style="margin-right: 0.4rem; color: #3b82f6;"></i> Edita, converteix i separa PDFs — accés directe a les eines</p>
 
-            <!-- Graella d'enllaços de documents -->
+            <!-- Graella d'enllaços de documents - TARGETES CLICABLES -->
             <div class="links-grid">
-                <!-- Unir documents (l'enllaç que m'has donat) -->
-                <div class="link-card">
+                <!-- Unir documents -->
+                <a href="https://www.ilovepdf.com/es/unir_pdf" target="_blank" class="link-card">
                     <div class="card-icon"><i class="fas fa-object-group"></i></div>
                     <div class="card-content">
                         <div class="card-title">
                             Unir documents <span class="etiqueta-pdf">PDF</span>
-                            <i class="fas fa-arrow-up-right-from-square" style="font-size: 0.65rem;"></i>
                         </div>
-                        <a href="https://www.ilovepdf.com/es/unir_pdf" target="_blank" class="card-link">
+                        <div class="card-link">
                             <i class="fas fa-link"></i> www.ilovepdf.com/es/unir_pdf
-                        </a>
+                        </div>
                     </div>
-                </div>
+                </a>
 
-                <!-- Separar PDF (exemple) -->
-                <div class="link-card">
+                <!-- Separar PDF -->
+                <a href="https://www.ilovepdf.com/es/separar_pdf" target="_blank" class="link-card">
                     <div class="card-icon"><i class="fas fa-cut"></i></div>
                     <div class="card-content">
                         <div class="card-title">
                             Separar PDF <span class="etiqueta-pdf">PDF</span>
-                            <i class="fas fa-arrow-up-right-from-square"></i>
                         </div>
-                        <a href="https://www.ilovepdf.com/es/separar_pdf" target="_blank" class="card-link">
+                        <div class="card-link">
                             <i class="fas fa-link"></i> ilovepdf.com/separar_pdf
-                        </a>
+                        </div>
                     </div>
-                </div>
+                </a>
 
                 <!-- Compressió PDF -->
-                <div class="link-card">
+                <a href="https://www.ilovepdf.com/es/comprimir_pdf" target="_blank" class="link-card">
                     <div class="card-icon"><i class="fas fa-file-zipper"></i></div>
                     <div class="card-content">
                         <div class="card-title">
-            Compressió PDF <span class="etiqueta-pdf">PDF</span>
-                            <i class="fas fa-arrow-up-right-from-square"></i>
+                            Compressió PDF <span class="etiqueta-pdf">PDF</span>
                         </div>
-                        <a href="https://www.ilovepdf.com/es/comprimir_pdf" target="_blank" class="card-link">
+                        <div class="card-link">
                             <i class="fas fa-link"></i> ilovepdf.com/comprimir_pdf
-                        </a>
+                        </div>
                     </div>
-                </div>
+                </a>
 
-                <!-- PDF a Word (editable) -->
-                <div class="link-card">
+                <!-- PDF a Word -->
+                <a href="https://www.ilovepdf.com/es/pdf_a_word" target="_blank" class="link-card">
                     <div class="card-icon"><i class="fas fa-file-word"></i></div>
                     <div class="card-content">
                         <div class="card-title">
                             PDF a Word <span class="etiqueta-pdf">DOC</span>
-                            <i class="fas fa-arrow-up-right-from-square"></i>
                         </div>
-                        <a href="https://www.ilovepdf.com/es/pdf_a_word" target="_blank" class="card-link">
+                        <div class="card-link">
                             <i class="fas fa-link"></i> ilovepdf.com/pdf_a_word
-                        </a>
+                        </div>
                     </div>
-                </div>
+                </a>
 
-                <!-- Editar PDF (ilovepdf) -->
-                <div class="link-card">
+                <!-- Editar PDF -->
+                <a href="https://www.ilovepdf.com/es/editar_pdf" target="_blank" class="link-card">
                     <div class="card-icon"><i class="fas fa-pencil"></i></div>
                     <div class="card-content">
                         <div class="card-title">
-                            Editar PDF (text) <i class="fas fa-arrow-up-right-from-square"></i>
+                            Editar PDF
                         </div>
-                        <a href="https://www.ilovepdf.com/es/editar_pdf" target="_blank" class="card-link">
+                        <div class="card-link">
                             <i class="fas fa-link"></i> ilovepdf.com/editar_pdf
-                        </a>
+                        </div>
                     </div>
-                </div>
+                </a>
 
-                <!-- Signar PDF (eina extra) -->
-                <div class="link-card">
+                <!-- Signar PDF -->
+                <a href="https://www.ilovepdf.com/es/firmar_pdf" target="_blank" class="link-card">
                     <div class="card-icon"><i class="fas fa-signature"></i></div>
                     <div class="card-content">
                         <div class="card-title">
-                            Signar PDF <i class="fas fa-arrow-up-right-from-square"></i>
+                            Signar PDF
                         </div>
-                        <a href="https://www.ilovepdf.com/es/firmar_pdf" target="_blank" class="card-link">
+                        <div class="card-link">
                             <i class="fas fa-link"></i> ilovepdf.com/firmar_pdf
-                        </a>
+                        </div>
                     </div>
-                </div>
+                </a>
             </div>
         </div>
 
@@ -519,38 +446,32 @@
                 </div>
             </div>
         </div>
-
-        <!-- Peu de pàgina / recordatori privat -->
-        <div class="footnote">
-            <span><i class="fas fa-lock"></i> repositori privat – només visible per a tu</span>
-            <span><i class="fas fa-pencil"></i> darrera edició: avui, 18:34</span>
-            <span><i class="fas fa-folder"></i> 5 categories · 23 enllaços</span>
-        </div>
     </div>
 
-    <!-- Botó flotant per afegir nou enllaç (només UI, no funcional) -->
+    <!-- Botó flotant per afegir nou enllaç (només UI) -->
     <div class="fab" title="Afegeix un enllaç privat">
         <i class="fas fa-plus"></i>
     </div>
 
-    <!-- Petit script per fer la cerca visual (placeholder, no real) -->
+    <!-- Script per la cerca -->
     <script>
         (function() {
-            const searchInput = document.querySelector('.search-bar input');
+            const searchInput = document.getElementById('searchInput');
             if (searchInput) {
                 searchInput.addEventListener('keyup', function(e) {
                     const term = e.target.value.toLowerCase();
-                    // Això és només un exemple visual: busca a les targetes
                     const cards = document.querySelectorAll('.link-card');
+                    
                     cards.forEach(card => {
                         const title = card.querySelector('.card-title')?.innerText.toLowerCase() || '';
                         const link = card.querySelector('.card-link')?.innerText.toLowerCase() || '';
+                        
                         if (title.includes(term) || link.includes(term) || term === '') {
                             card.style.opacity = '1';
                             card.style.display = 'flex';
                         } else {
                             card.style.opacity = '0.3';
-                            // també podriem amagar: display none
+                            card.style.display = 'flex';
                         }
                     });
                 });
