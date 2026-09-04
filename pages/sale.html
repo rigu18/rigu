@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venda - TPV Festa</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="header-content">
+                <h1>💰 Venda</h1>
+                <div>
+                    <a href="../index.html" class="btn-back">← Tornar</a>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="sale-container">
+                <!-- Productes -->
+                <div>
+                    <h3>🛍️ Productes</h3>
+                    <div class="form-group">
+                        <select id="categoryFilter" onchange="filterProducts()">
+                            <option value="">Tots els apartats</option>
+                        </select>
+                    </div>
+                    <div class="product-grid" id="productGrid">
+                        <!-- Es carrega dinàmicament -->
+                    </div>
+                </div>
+
+                <!-- Carret -->
+                <div class="cart-container">
+                    <h3>🛒 Carret</h3>
+                    <div id="cartItems">
+                        <p>No hi ha productes al carret</p>
+                    </div>
+                    <div class="cart-total">
+                        <span>Total:</span>
+                        <span id="cartTotal">0.00 €</span>
+                    </div>
+                    <button class="btn-finish" onclick="finishSale()">✅ Finalitzar Venda</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal per finalitzar venda -->
+    <div class="modal-overlay" id="finishModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Finalitzar Venda</h2>
+                <button class="modal-close" onclick="closeFinishModal()">×</button>
+            </div>
+            <div>
+                <p><strong>Total:</strong> <span id="finishTotal">0.00 €</span></p>
+                
+                <div class="form-group">
+                    <label>Mètode de pagament</label>
+                    <select id="paymentMethod" onchange="toggleCashInput()">
+                        <option value="card">💳 Targeta</option>
+                        <option value="cash">💵 Efectiu</option>
+                    </select>
+                </div>
+                
+                <div id="cashSection" style="display:none;">
+                    <div class="form-group">
+                        <label>Diners que entrega el client</label>
+                        <input type="number" id="cashGiven" step="0.01" min="0" oninput="calculateChange()">
+                    </div>
+                    <div class="form-group">
+                        <label>Canvi a retornar</label>
+                        <input type="text" id="changeAmount" readonly style="background:#f0f0f0;font-weight:bold;color:#2ecc71;">
+                    </div>
+                </div>
+                
+                <button class="btn-save" onclick="confirmSale()">✅ Confirmar Venda</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db } from '../js/firebase-config.js';
+        import { 
+            collection, getDocs, addDoc, updateDoc, doc, 
+            onSnapshot 
+        } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+        import { auth } from '../js/firebase-config.js';
+
+        let cart = [];
+        let products = [];
+        let categories = [];
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) window.location.href = '../login.html';
+        });
+
+        // Carregar productes i categories
+        async function loadData() {
+            // Carregar categories pel filtre
+            const categoriesSnapshot = await getDocs(collection(db, 'categories'));
+            categories = [];
+            const filterSelect = document.getElementById('categoryFilter');
+            categoriesSnapshot.forEach((doc) => {
+                const cat = { id: doc.id, ...doc.data() };
+                categories.push(cat);
+                const option = document.createElement('option');
+                option.value = doc.id;
+                option.textContent = cat.name;
+                filterSelect.appendChild(option);
+            });
+
+            // Carregar productes en temps real
+            onSnapshot(collection(db, 'products'), (snapshot) => {
+                products = [];
+                snapshot.forEach((doc) => {
+                    products.push({ id: doc.id, ...doc.data() });
+                });
+                renderProducts();
+            });
+        }
+
+        // Renderitzar productes segons filtre
+        function renderProducts() {
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = '';
+            
+            const filter = document.getElementById('categoryFilter').value;
+            let filtered = products;
+            
+            if (filter) {
+                filtered = products.filter(p => p.categories && p.categories.includes(filter));
+            }
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#999;">No hi ha productes disponibles</p>';
+                return;
+            }
+            
+            filtered.forEach(product => {
+                const div = document.createElement('div');
+                div.className = 'product-item';
+                div.innerHTML = `
+                    <div>${product.name}</div>
+                    <div class="price">${product.price.toFixed(2)}€</div>
+                `;
+                div.onclick = () => addToCart(product);
+                grid.appendChild(div);
+            });
+        }
+
+        window.filterProducts = renderProducts;
+
+        // Afegir al carret
+        function addToCart(product) {
+            const existing = cart.find(item => item.id === product.id);
+            if (existing) {
+                existing.quantity++;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+            updateCartUI();
+        }
+
+        // Actualitzar UI del carret
+        function updateCartUI() {
+            const container = document.getElementById('cartItems');
+            const totalEl = document.getElementById('cartTotal');
+            
+            if (cart.length === 0) {
+                container.innerHTML = '<p>No hi ha productes al carret</p>';
+                totalEl.textContent = '0.00 €';
+                return;
+            }
+            
+            let html = '';
+            let total = 0;
+            
+            cart.forEach((item, index) => {
+                const subtotal = item.price * item.quantity;
+                total += subtotal;
+                html += `
+                    <div class="cart-item">
+                        <span>${item.name} x${item.quantity}</span>
+                        <span>
+                            ${subtotal.toFixed(2)}€
+                            <button class="btn-remove-cart" onclick="removeFromCart(${index})">×</button>
+                        </span>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            totalEl.textContent = total.toFixed(2) + ' €';
+        }
+
+        window.removeFromCart = function(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        };
+
+        // Finalitzar venda
+        window.finishSale = function() {
+            if (cart.length === 0) {
+                alert('El carret està buit!');
+                return;
+            }
+            
+            const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            document.getElementById('finishTotal').textContent = total.toFixed(2) + ' €';
+            document.getElementById('finishModal').classList.add('active');
+            document.getElementById('cashGiven').value = '';
+            document.getElementById('changeAmount').value = '';
+            document.getElementById('cashSection').style.display = 'none';
+        };
+
+        window.closeFinishModal = function() {
+            document.getElementById('finishModal').classList.remove('active');
+        };
+
+        window.toggleCashInput = function() {
+            const method = document.getElementById('paymentMethod').value;
+            document.getElementById('cashSection').style.display = method === 'cash' ? 'block' : 'none';
+        };
+
+        window.calculateChange = function() {
+            const total = parseFloat(document.getElementById('finishTotal').textContent);
+            const given = parseFloat(document.getElementById('cashGiven').value);
+            
+            if (!isNaN(given) && given >= total) {
+                document.getElementById('changeAmount').value = (given - total).toFixed(2) + ' €';
+            } else if (!isNaN(given) && given < total) {
+                document.getElementById('changeAmount').value = 'Falten ' + (total - given).toFixed(2) + ' €';
+            } else {
+                document.getElementById('changeAmount').value = '';
+            }
+        };
+
+        window.confirmSale = async function() {
+            const total = parseFloat(document.getElementById('finishTotal').textContent);
+            const method = document.getElementById('paymentMethod').value;
+            const items = cart.map(item => ({
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity
+            }));
+            
+            let cashGiven = null;
+            let change = null;
+            
+            if (method === 'cash') {
+                cashGiven = parseFloat(document.getElementById('cashGiven').value);
+                change = cashGiven - total;
+                
+                if (isNaN(cashGiven) || cashGiven < total) {
+                    alert('Els diners entregats no són suficients!');
+                    return;
+                }
+            }
+            
+            try {
+                // Guardar la venda a Firebase
+                await addDoc(collection(db, 'sales'), {
+                    items: items,
+                    total: total,
+                    paymentMethod: method,
+                    cashGiven: cashGiven,
+                    change: change,
+                    date: new Date().toISOString(),
+                    user: auth.currentUser ? auth.currentUser.email : 'unknown'
+                });
+                
+                alert('✅ Venda finalitzada correctament!');
+                cart = [];
+                updateCartUI();
+                closeFinishModal();
+            } catch (error) {
+                alert('Error al guardar la venda: ' + error.message);
+            }
+        };
+
+        // Iniciar
+        loadData();
+
+        // Tancar modal amb click fora
+        document.getElementById('finishModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeFinishModal();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apartats - TPV Festa</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="header-content">
+                <h1>🏷️ Gestió d'Apartats</h1>
+                <div>
+                    <a href="../index.html" class="btn-back">← Tornar</a>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="page-header">
+                <h2>Apartats disponibles</h2>
+                <button class="btn-add" onclick="openCategoryModal()">+ Nou Apartat</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Descripció</th>
+                            <th>Accions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="categoriesTableBody">
+                        <!-- Es carrega dinàmicament -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal per crear/editar apartat -->
+    <div class="modal-overlay" id="categoryModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">Nou Apartat</h2>
+                <button class="modal-close" onclick="closeCategoryModal()">×</button>
+            </div>
+            <form id="categoryForm">
+                <input type="hidden" id="categoryId">
+                
+                <div class="form-group">
+                    <label>Nom de l'apartat *</label>
+                    <input type="text" id="categoryName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Descripció (opcional)</label>
+                    <input type="text" id="categoryDescription">
+                </div>
+                
+                <button type="submit" class="btn-save">Guardar Apartat</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db } from '../js/firebase-config.js';
+        import { 
+            collection, addDoc, updateDoc, deleteDoc, doc, 
+            onSnapshot 
+        } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+        import { auth } from '../js/firebase-config.js';
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) window.location.href = '../login.html';
+        });
+
+        const categoriesRef = collection(db, 'categories');
+
+        // Carregar categories en temps real
+        function loadCategories() {
+            onSnapshot(categoriesRef, (snapshot) => {
+                const tbody = document.getElementById('categoriesTableBody');
+                tbody.innerHTML = '';
+                
+                snapshot.forEach((doc) => {
+                    const category = { id: doc.id, ...doc.data() };
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><strong>${category.name}</strong></td>
+                        <td>${category.description || '-'}</td>
+                        <td>
+                            <button class="btn-edit" onclick="editCategory('${category.id}')">✏️ Editar</button>
+                            <button class="btn-delete" onclick="deleteCategory('${category.id}')">🗑️ Eliminar</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            });
+        }
+
+        window.openCategoryModal = function() {
+            document.getElementById('modalTitle').textContent = 'Nou Apartat';
+            document.getElementById('categoryId').value = '';
+            document.getElementById('categoryName').value = '';
+            document.getElementById('categoryDescription').value = '';
+            document.getElementById('categoryModal').classList.add('active');
+        };
+
+        window.closeCategoryModal = function() {
+            document.getElementById('categoryModal').classList.remove('active');
+        };
+
+        window.editCategory = async function(id) {
+            const docRef = doc(db, 'categories', id);
+            const docSnap = await getDoc(docRef);
+            
+            if (docSnap.exists()) {
+                const category = docSnap.data();
+                document.getElementById('modalTitle').textContent = 'Editar Apartat';
+                document.getElementById('categoryId').value = id;
+                document.getElementById('categoryName').value = category.name;
+                document.getElementById('categoryDescription').value = category.description || '';
+                document.getElementById('categoryModal').classList.add('active');
+            }
+        };
+
+        window.deleteCategory = async function(id) {
+            if (confirm('Segur que vols eliminar aquest apartat?')) {
+                await deleteDoc(doc(db, 'categories', id));
+            }
+        };
+
+        document.getElementById('categoryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const id = document.getElementById('categoryId').value;
+            const name = document.getElementById('categoryName').value;
+            const description = document.getElementById('categoryDescription').value;
+            
+            const data = { name, description: description || '' };
+            
+            try {
+                if (id) {
+                    await updateDoc(doc(db, 'categories', id), data);
+                } else {
+                    await addDoc(categoriesRef, data);
+                }
+                closeCategoryModal();
+            } catch (error) {
+                alert('Error al guardar: ' + error.message);
+            }
+        });
+
+        loadCategories();
+
+        // Tancar modal amb click fora
+        document.getElementById('categoryModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeCategoryModal();
+        });
+    </script>
+</body>
+</html>
