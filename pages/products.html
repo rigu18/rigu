@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apartats - TPV Festa</title>
+    <title>Productes - TPV Festa</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
     <div class="app-container">
         <header>
             <div class="header-content">
-                <h1>🏷️ Gestió d'Apartats</h1>
+                <h1>📦 Gestió de Productes</h1>
                 <div>
                     <a href="../index.html" class="btn-back">← Tornar</a>
                 </div>
@@ -19,8 +19,8 @@
 
         <main>
             <div class="page-header">
-                <h2>Apartats disponibles</h2>
-                <button class="btn-add" onclick="openCategoryModal()">+ Nou Apartat</button>
+                <h2>Llista de productes</h2>
+                <button class="btn-add" onclick="openProductModal()">+ Nou Producte</button>
             </div>
 
             <div class="table-container">
@@ -28,11 +28,12 @@
                     <thead>
                         <tr>
                             <th>Nom</th>
-                            <th>Descripció</th>
+                            <th>Preu (€)</th>
+                            <th>Apartats</th>
                             <th>Accions</th>
                         </tr>
                     </thead>
-                    <tbody id="categoriesTableBody">
+                    <tbody id="productsTableBody">
                         <!-- Es carrega dinàmicament -->
                     </tbody>
                 </table>
@@ -40,27 +41,35 @@
         </main>
     </div>
 
-    <!-- Modal per crear/editar apartat -->
-    <div class="modal-overlay" id="categoryModal">
+    <!-- Modal per crear/editar producte -->
+    <div class="modal-overlay" id="productModal">
         <div class="modal">
             <div class="modal-header">
-                <h2 id="modalTitle">Nou Apartat</h2>
-                <button class="modal-close" onclick="closeCategoryModal()">×</button>
+                <h2 id="modalTitle">Nou Producte</h2>
+                <button class="modal-close" onclick="closeProductModal()">×</button>
             </div>
-            <form id="categoryForm">
-                <input type="hidden" id="categoryId">
+            <form id="productForm">
+                <input type="hidden" id="productId">
                 
                 <div class="form-group">
-                    <label>Nom de l'apartat *</label>
-                    <input type="text" id="categoryName" required>
+                    <label>Nom del producte *</label>
+                    <input type="text" id="productName" required>
                 </div>
                 
                 <div class="form-group">
-                    <label>Descripció (opcional)</label>
-                    <input type="text" id="categoryDescription">
+                    <label>Preu (€) *</label>
+                    <input type="number" id="productPrice" step="0.01" min="0" required>
                 </div>
                 
-                <button type="submit" class="btn-save">Guardar Apartat</button>
+                <div class="form-group">
+                    <label>Apartats *</label>
+                    <select id="productCategories" multiple style="height:100px;">
+                        <!-- Es carreguen dinàmicament -->
+                    </select>
+                    <small>Mantén CTRL per seleccionar múltiples apartats</small>
+                </div>
+                
+                <button type="submit" class="btn-save">Guardar Producte</button>
             </form>
         </div>
     </div>
@@ -68,33 +77,37 @@
     <script type="module">
         import { db } from '../js/firebase-config.js';
         import { 
-            collection, addDoc, updateDoc, deleteDoc, doc, 
+            collection, getDocs, addDoc, updateDoc, deleteDoc, doc, 
             onSnapshot 
         } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
         import { auth } from '../js/firebase-config.js';
 
+        // Verificar autenticació
         onAuthStateChanged(auth, (user) => {
             if (!user) window.location.href = '../login.html';
         });
 
+        // Carregar productes en temps real
+        const productsRef = collection(db, 'products');
         const categoriesRef = collection(db, 'categories');
 
-        // Carregar categories en temps real
-        function loadCategories() {
-            onSnapshot(categoriesRef, (snapshot) => {
-                const tbody = document.getElementById('categoriesTableBody');
+        // Carregar productes
+        function loadProducts() {
+            onSnapshot(productsRef, (snapshot) => {
+                const tbody = document.getElementById('productsTableBody');
                 tbody.innerHTML = '';
                 
                 snapshot.forEach((doc) => {
-                    const category = { id: doc.id, ...doc.data() };
+                    const product = { id: doc.id, ...doc.data() };
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td><strong>${category.name}</strong></td>
-                        <td>${category.description || '-'}</td>
+                        <td>${product.name}</td>
+                        <td>${product.price.toFixed(2)}€</td>
+                        <td>${product.categories ? product.categories.join(', ') : 'Sense apartat'}</td>
                         <td>
-                            <button class="btn-edit" onclick="editCategory('${category.id}')">✏️ Editar</button>
-                            <button class="btn-delete" onclick="deleteCategory('${category.id}')">🗑️ Eliminar</button>
+                            <button class="btn-edit" onclick="editProduct('${product.id}')">✏️ Editar</button>
+                            <button class="btn-delete" onclick="deleteProduct('${product.id}')">🗑️ Eliminar</button>
                         </td>
                     `;
                     tbody.appendChild(tr);
@@ -102,64 +115,98 @@
             });
         }
 
-        window.openCategoryModal = function() {
-            document.getElementById('modalTitle').textContent = 'Nou Apartat';
-            document.getElementById('categoryId').value = '';
-            document.getElementById('categoryName').value = '';
-            document.getElementById('categoryDescription').value = '';
-            document.getElementById('categoryModal').classList.add('active');
+        // Carregar categories pel desplegable
+        async function loadCategoriesSelect() {
+            const select = document.getElementById('productCategories');
+            select.innerHTML = '';
+            
+            const snapshot = await getDocs(categoriesRef);
+            snapshot.forEach((doc) => {
+                const category = doc.data();
+                const option = document.createElement('option');
+                option.value = doc.id;
+                option.textContent = category.name;
+                select.appendChild(option);
+            });
+        }
+
+        // Obrir modal per crear producte
+        window.openProductModal = function() {
+            document.getElementById('modalTitle').textContent = 'Nou Producte';
+            document.getElementById('productId').value = '';
+            document.getElementById('productName').value = '';
+            document.getElementById('productPrice').value = '';
+            document.getElementById('productCategories').selectedIndex = -1;
+            document.getElementById('productModal').classList.add('active');
+            loadCategoriesSelect();
         };
 
-        window.closeCategoryModal = function() {
-            document.getElementById('categoryModal').classList.remove('active');
+        // Tancar modal
+        window.closeProductModal = function() {
+            document.getElementById('productModal').classList.remove('active');
         };
 
-        window.editCategory = async function(id) {
-            const docRef = doc(db, 'categories', id);
+        // Editar producte
+        window.editProduct = async function(id) {
+            const docRef = doc(db, 'products', id);
             const docSnap = await getDoc(docRef);
             
             if (docSnap.exists()) {
-                const category = docSnap.data();
-                document.getElementById('modalTitle').textContent = 'Editar Apartat';
-                document.getElementById('categoryId').value = id;
-                document.getElementById('categoryName').value = category.name;
-                document.getElementById('categoryDescription').value = category.description || '';
-                document.getElementById('categoryModal').classList.add('active');
+                const product = docSnap.data();
+                document.getElementById('modalTitle').textContent = 'Editar Producte';
+                document.getElementById('productId').value = id;
+                document.getElementById('productName').value = product.name;
+                document.getElementById('productPrice').value = product.price;
+                
+                await loadCategoriesSelect();
+                const select = document.getElementById('productCategories');
+                Array.from(select.options).forEach(option => {
+                    if (product.categories && product.categories.includes(option.value)) {
+                        option.selected = true;
+                    }
+                });
+                
+                document.getElementById('productModal').classList.add('active');
             }
         };
 
-        window.deleteCategory = async function(id) {
-            if (confirm('Segur que vols eliminar aquest apartat?')) {
-                await deleteDoc(doc(db, 'categories', id));
+        // Eliminar producte
+        window.deleteProduct = async function(id) {
+            if (confirm('Segur que vols eliminar aquest producte?')) {
+                await deleteDoc(doc(db, 'products', id));
             }
         };
 
-        document.getElementById('categoryForm').addEventListener('submit', async (e) => {
+        // Guardar producte (crear/editar)
+        document.getElementById('productForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const id = document.getElementById('categoryId').value;
-            const name = document.getElementById('categoryName').value;
-            const description = document.getElementById('categoryDescription').value;
+            const id = document.getElementById('productId').value;
+            const name = document.getElementById('productName').value;
+            const price = parseFloat(document.getElementById('productPrice').value);
+            const select = document.getElementById('productCategories');
+            const categories = Array.from(select.selectedOptions).map(opt => opt.value);
             
-            const data = { name, description: description || '' };
+            const data = { name, price, categories };
             
             try {
                 if (id) {
-                    await updateDoc(doc(db, 'categories', id), data);
+                    await updateDoc(doc(db, 'products', id), data);
                 } else {
-                    await addDoc(categoriesRef, data);
+                    await addDoc(collection(db, 'products'), data);
                 }
-                closeCategoryModal();
+                closeProductModal();
             } catch (error) {
                 alert('Error al guardar: ' + error.message);
             }
         });
 
-        loadCategories();
+        // Iniciar
+        loadProducts();
 
         // Tancar modal amb click fora
-        document.getElementById('categoryModal').addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) closeCategoryModal();
+        document.getElementById('productModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeProductModal();
         });
     </script>
 </body>
