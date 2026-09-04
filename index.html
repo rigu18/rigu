@@ -3,480 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Repositori privat d'enllaços</title>
-    <!-- Poppins de Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome 6 (icons) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f4f7fb;
-            color: #1e293b;
-            line-height: 1.5;
-            padding: 2rem 1.5rem;
-        }
-
-        .container {
-            max-width: 1300px;
-            margin: 0 auto;
-        }
-
-        /* capçalera - només logo */
-        .header {
-            margin-bottom: 2.5rem;
-        }
-
-        .logo-icon {
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            width: 48px;
-            height: 48px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.8rem;
-            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4);
-        }
-
-        /* cerca i filtre ràpids */
-        .search-bar {
-            background-color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 60px;
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            box-shadow: 0 8px 20px -8px rgba(0, 34, 68, 0.1);
-            border: 1px solid rgba(203, 213, 225, 0.4);
-            backdrop-filter: blur(2px);
-            margin-bottom: 2rem;
-            max-width: 500px;
-            width: 100%;
-        }
-
-        .search-bar i {
-            color: #94a3b8;
-            font-size: 1.1rem;
-        }
-
-        .search-bar input {
-            border: none;
-            background: transparent;
-            font-family: 'Poppins', sans-serif;
-            font-size: 0.95rem;
-            width: 100%;
-            outline: none;
-            font-weight: 400;
-        }
-
-        .search-bar input::placeholder {
-            color: #94a3b8;
-            font-weight: 300;
-        }
-
-        /* categories */
-        .category-section {
-            margin-bottom: 3rem;
-        }
-
-        .category-title {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            margin-bottom: 1.5rem;
-            border-left: 5px solid #3b82f6;
-            padding-left: 1rem;
-        }
-
-        .category-title h2 {
-            font-weight: 600;
-            font-size: 1.7rem;
-            color: #0f172a;
-        }
-
-        .category-title i {
-            font-size: 1.8rem;
-            color: #3b82f6;
-            background: #e0f2fe;
-            padding: 0.5rem;
-            border-radius: 14px;
-        }
-
-        .category-desc {
-            color: #475569;
-            font-weight: 400;
-            margin-top: -0.5rem;
-            margin-bottom: 1.5rem;
-            font-size: 1rem;
-        }
-
-        /* targetes d'enllaços - ara tot el requadre és clicable */
-        .links-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.2rem;
-        }
-
-        .link-card {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            background-color: #ffffffdd;
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            border-radius: 28px;
-            padding: 1.2rem 1.3rem;
-            box-shadow: 0 15px 30px -12px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            border: 1px solid rgba(148, 163, 184, 0.15);
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .link-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 25px 35px -14px rgba(59, 130, 246, 0.25);
-            border-color: #b3d4ff;
-        }
-
-        .card-icon {
-            background: linear-gradient(145deg, #ffffff, #f1f5f9);
-            min-width: 52px;
-            height: 52px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: #3b82f6;
-            box-shadow: inset 0 2px 5px rgba(255,255,255,0.8), 0 5px 10px rgba(0, 20, 40, 0.05);
-            pointer-events: none;
-        }
-
-        .card-content {
-            flex: 1;
-            pointer-events: none;
-        }
-
-        .card-title {
-            font-weight: 600;
-            font-size: 1.1rem;
-            margin-bottom: 0.2rem;
-            color: #0f172a;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-
-        .card-title i {
-            font-size: 0.7rem;
-            color: #3b82f6;
-            opacity: 0.7;
-        }
-
-        .card-link {
-            font-size: 0.8rem;
-            color: #64748b;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-            word-break: break-all;
-            pointer-events: none;
-        }
-
-        .card-link i {
-            font-size: 0.7rem;
-            color: #94a3b8;
-        }
-
-        .etiqueta-pdf {
-            background-color: #fee2e2;
-            color: #b91c1c;
-            font-size: 0.65rem;
-            font-weight: 600;
-            padding: 0.2rem 0.6rem;
-            border-radius: 30px;
-            letter-spacing: 0.3px;
-            margin-left: 0.5rem;
-            text-transform: uppercase;
-        }
-
-        /* altres categories */
-        .altres-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .categoria-mini {
-            background-color: #ffffff;
-            border-radius: 24px;
-            padding: 1.2rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
-            border: 1px solid #e9eef3;
-        }
-
-        .categoria-mini h3 {
-            font-weight: 500;
-            font-size: 1.2rem;
-            margin-bottom: 0.75rem;
-            color: #1e293b;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .mini-link {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-            border-bottom: 1px dashed #e2e8f0;
-            font-size: 0.9rem;
-        }
-
-        .mini-link a {
-            text-decoration: none;
-            color: #2563eb;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        .mini-link a:hover {
-            text-decoration: underline;
-        }
-
-        .mini-link span {
-            color: #64748b;
-            font-size: 0.75rem;
-        }
-
-        /* botó flotant d'afegir (privat) */
-        .fab {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            background: #0f172a;
-            color: white;
-            width: 60px;
-            height: 60px;
-            border-radius: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            box-shadow: 0 15px 30px -8px #1e293b;
-            cursor: pointer;
-            transition: 0.2s;
-            border: 2px solid white;
-            z-index: 99;
-        }
-
-        .fab:hover {
-            background: #3b82f6;
-            transform: scale(1.07) rotate(90deg);
-        }
-
-        /* responsivitat */
-        @media (max-width: 640px) {
-            body { padding: 1.2rem; }
-            .header { flex-direction: column; align-items: start; }
-            .fab { width: 50px; height: 50px; font-size: 1.5rem; right: 1.2rem; bottom: 1.2rem; }
-        }
-    </style>
+    <title>TPV Festa Major</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Només el logo (sense títol) -->
-        <div class="header">
-            <div class="logo-icon"><i class="fas fa-link"></i></div>
-        </div>
-
-        <!-- Barra de cerca -->
-        <div class="search-bar">
-            <i class="fas fa-search"></i>
-            <input type="text" id="searchInput" placeholder="Cerca dins els teus enllaços... (p. ex. PDF, documents)">
-        </div>
-
-        <!-- SECCIÓ PRINCIPAL: DOCUMENTS -->
-        <div class="category-section">
-            <div class="category-title">
-                <i class="fas fa-file-pdf"></i>
-                <h2>DOCUMENTS</h2>
-            </div>
-            <p class="category-desc"><i class="fas fa-pen" style="margin-right: 0.4rem; color: #3b82f6;"></i> Edita, converteix i separa PDFs — accés directe a les eines</p>
-
-            <!-- Graella d'enllaços de documents - TARGETES CLICABLES -->
-            <div class="links-grid">
-                <!-- Unir documents -->
-                <a href="https://www.ilovepdf.com/es/unir_pdf" target="_blank" class="link-card">
-                    <div class="card-icon"><i class="fas fa-object-group"></i></div>
-                    <div class="card-content">
-                        <div class="card-title">
-                            Unir documents <span class="etiqueta-pdf">PDF</span>
-                        </div>
-                        <div class="card-link">
-                            <i class="fas fa-link"></i> www.ilovepdf.com/es/unir_pdf
-                        </div>
-                    </div>
-                </a>
-
-                <!-- Separar PDF -->
-                <a href="https://www.ilovepdf.com/es/separar_pdf" target="_blank" class="link-card">
-                    <div class="card-icon"><i class="fas fa-cut"></i></div>
-                    <div class="card-content">
-                        <div class="card-title">
-                            Separar PDF <span class="etiqueta-pdf">PDF</span>
-                        </div>
-                        <div class="card-link">
-                            <i class="fas fa-link"></i> ilovepdf.com/separar_pdf
-                        </div>
-                    </div>
-                </a>
-
-                <!-- Compressió PDF -->
-                <a href="https://www.ilovepdf.com/es/comprimir_pdf" target="_blank" class="link-card">
-                    <div class="card-icon"><i class="fas fa-file-zipper"></i></div>
-                    <div class="card-content">
-                        <div class="card-title">
-                            Compressió PDF <span class="etiqueta-pdf">PDF</span>
-                        </div>
-                        <div class="card-link">
-                            <i class="fas fa-link"></i> ilovepdf.com/comprimir_pdf
-                        </div>
-                    </div>
-                </a>
-
-                <!-- PDF a Word -->
-                <a href="https://www.ilovepdf.com/es/pdf_a_word" target="_blank" class="link-card">
-                    <div class="card-icon"><i class="fas fa-file-word"></i></div>
-                    <div class="card-content">
-                        <div class="card-title">
-                            PDF a Word <span class="etiqueta-pdf">DOC</span>
-                        </div>
-                        <div class="card-link">
-                            <i class="fas fa-link"></i> ilovepdf.com/pdf_a_word
-                        </div>
-                    </div>
-                </a>
-
-                <!-- Editar PDF -->
-                <a href="https://www.ilovepdf.com/es/editar_pdf" target="_blank" class="link-card">
-                    <div class="card-icon"><i class="fas fa-pencil"></i></div>
-                    <div class="card-content">
-                        <div class="card-title">
-                            Editar PDF
-                        </div>
-                        <div class="card-link">
-                            <i class="fas fa-link"></i> ilovepdf.com/editar_pdf
-                        </div>
-                    </div>
-                </a>
-
-                <!-- Signar PDF -->
-                <a href="https://www.ilovepdf.com/es/firmar_pdf" target="_blank" class="link-card">
-                    <div class="card-icon"><i class="fas fa-signature"></i></div>
-                    <div class="card-content">
-                        <div class="card-title">
-                            Signar PDF
-                        </div>
-                        <div class="card-link">
-                            <i class="fas fa-link"></i> ilovepdf.com/firmar_pdf
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
-
-        <!-- ALTRES TEMES (classificació addicional) -->
-        <div style="display: flex; flex-wrap: wrap; gap: 2rem; margin-top: 1.5rem;">
-            <!-- Tema: IMATGES -->
-            <div style="flex: 1 1 300px;">
-                <div class="category-title" style="border-left-color: #eab308;">
-                    <i class="fas fa-image" style="color:#eab308; background:#fef9c3;"></i>
-                    <h2 style="font-size: 1.4rem;">Imatges</h2>
-                </div>
-                <div class="categoria-mini">
-                    <h3><i class="fas fa-camera" style="color:#eab308;"></i> Editors i conversors</h3>
-                    <div class="mini-link"><a href="#"><i class="fas fa-external-link-alt"></i> Compressió d'imatges</a> <span>TinyPNG</span></div>
-                    <div class="mini-link"><a href="#"><i class="fas fa-external-link-alt"></i> Canviar mida (resize)</a> <span>resizeimage</span></div>
-                    <div class="mini-link"><a href="#"><i class="fas fa-external-link-alt"></i> PNG a JPG</a> <span>convertio</span></div>
+    <div class="app-container">
+        <!-- Header -->
+        <header>
+            <div class="header-content">
+                <h1>🍻 TPV Festa Major</h1>
+                <div class="user-info">
+                    <span id="userEmail"></span>
+                    <button id="logoutBtn" class="btn-logout">🚪 Sortir</button>
                 </div>
             </div>
-            <!-- Tema: DESENVOLUPAMENT -->
-            <div style="flex: 1 1 300px;">
-                <div class="category-title" style="border-left-color: #10b981;">
-                    <i class="fas fa-code" style="color:#10b981; background:#d1fae5;"></i>
-                    <h2 style="font-size: 1.4rem;">Dev & utils</h2>
+        </header>
+
+        <!-- Main Menu -->
+        <main>
+            <div class="menu-grid">
+                <div class="menu-card" onclick="window.location.href='pages/sale.html'">
+                    <div class="menu-icon">💰</div>
+                    <h2>Venda</h2>
+                    <p>Gestiona les vendes del dia</p>
                 </div>
-                <div class="categoria-mini">
-                    <h3><i class="fas fa-terminal" style="color:#10b981;"></i> Eines ràpides</h3>
-                    <div class="mini-link"><a href="#"><i class="fas fa-external-link-alt"></i> Regex tester</a> <span>regex101</span></div>
-                    <div class="mini-link"><a href="#"><i class="fas fa-external-link-alt"></i> JSON formatter</a> <span>jsonlint</span></div>
-                    <div class="mini-link"><a href="#"><i class="fas fa-external-link-alt"></i> Generador de colors</a> <span>coolors</span></div>
+                
+                <div class="menu-card" onclick="window.location.href='pages/products.html'">
+                    <div class="menu-icon">📦</div>
+                    <h2>Productes</h2>
+                    <p>Gestiona l'inventari</p>
                 </div>
-            </div>
-            <!-- Tema: PRODUCTIVITAT -->
-            <div style="flex: 1 1 300px;">
-                <div class="category-title" style="border-left-color: #8b5cf6;">
-                    <i class="fas fa-check-double" style="color:#8b5cf6; background:#ede9fe;"></i>
-                    <h2 style="font-size: 1.4rem;">Productivitat</h2>
-                </div>
-                <div class="categoria-mini">
-                    <h3><i class="fas fa-tasks" style="color:#8b5cf6;"></i> Notes i eines</h3>
-                    <div class="mini-link"><a href="#"><i class="fas fa-external-link-alt"></i> Calculadora gràfica</a> <span>desmos</span></div>
-                    <div class="mini-link"><a href="#"><i class="fas fa-external-link-alt"></i> Temporitzador pomodoro</a> <span>pomofocus</span></div>
-                    <div class="mini-link"><a href="#"><i class="fas fa-external-link-alt"></i> Traductor</a> <span>deepl</span></div>
+                
+                <div class="menu-card" onclick="window.location.href='pages/categories.html'">
+                    <div class="menu-icon">🏷️</div>
+                    <h2>Apartats</h2>
+                    <p>Gestiona categories</p>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 
-    <!-- Botó flotant per afegir nou enllaç (només UI) -->
-    <div class="fab" title="Afegeix un enllaç privat">
-        <i class="fas fa-plus"></i>
-    </div>
+    <script type="module">
+        import { auth } from '../js/firebase-config.js';
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
-    <!-- Script per la cerca -->
-    <script>
-        (function() {
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) {
-                searchInput.addEventListener('keyup', function(e) {
-                    const term = e.target.value.toLowerCase();
-                    const cards = document.querySelectorAll('.link-card');
-                    
-                    cards.forEach(card => {
-                        const title = card.querySelector('.card-title')?.innerText.toLowerCase() || '';
-                        const link = card.querySelector('.card-link')?.innerText.toLowerCase() || '';
-                        
-                        if (title.includes(term) || link.includes(term) || term === '') {
-                            card.style.opacity = '1';
-                            card.style.display = 'flex';
-                        } else {
-                            card.style.opacity = '0.3';
-                            card.style.display = 'flex';
-                        }
-                    });
-                });
+        // Verificar autenticació
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+            } else {
+                document.getElementById('userEmail').textContent = user.email;
             }
-        })();
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = 'login.html';
+        });
     </script>
 </body>
 </html>
